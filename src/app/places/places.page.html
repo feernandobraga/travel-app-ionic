@@ -1,9 +1,20 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>places</ion-title>
-  </ion-toolbar>
-</ion-header>
+  <!-- TAB at the bottom -->
+  <ion-tabs>
+    
+    <ion-tab-bar slot="bottom">
 
-<ion-content>
+      <!-- Discover Button in the TAB -->
+      <ion-tab-button tab="discover"> <!-- the name is important so the routes (places-routing.module) know which tab to load -->
+        <ion-label>Discover</ion-label>
+        <ion-icon name="search"></ion-icon>
+      </ion-tab-button>
 
-</ion-content>
+      <!-- Offers Button in the TAB -->
+      <ion-tab-button tab="offers"> <!-- the name is important so the routes (places-routing.module) know which tab to load -->
+        <ion-label>Offers</ion-label>
+        <ion-icon name="card"></ion-icon>
+      </ion-tab-button>
+
+    </ion-tab-bar>
+
+  </ion-tabs>
