@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, ModalController } from '@ionic/angular';
 import { PlacesService } from '../../places.service';
 import { Place } from '../../place.model';
+import { CreateBookingComponent } from '../../../bookings/create-booking/create-booking.component';
 
 @Component({
   selector: 'app-place-detail',
@@ -16,7 +17,8 @@ export class PlaceDetailPage implements OnInit {
   constructor(
       private router: ActivatedRoute,
       private navCtrl: NavController,
-      private placesService: PlacesService
+      private placesService: PlacesService,
+      private modalCtrl: ModalController
     ) { }
 
   ngOnInit() {
@@ -38,7 +40,19 @@ export class PlaceDetailPage implements OnInit {
 
   onBookPlace(){
     // this.router.navigateByUrl('/places/tabs/discover');
-    this.navCtrl.navigateBack('/places/tabs/discover')
+    // this.navCtrl.navigateBack('/places/tabs/discover')
+    this.modalCtrl
+    .create({
+      component: CreateBookingComponent, 
+      // componentProps allow you to pass any key value pair you wanted. In this case I passed the place
+      componentProps: { selectedPlace: this.place }
+    })
+    .then(modalEl => { 
+      modalEl.present();
+      return modalEl.onDidDismiss();
+    }).then(resultData => {
+      console.log(resultData.data, resultData.role);
+    })
 
   }
 
