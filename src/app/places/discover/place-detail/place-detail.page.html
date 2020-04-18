@@ -1,9 +1,21 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>place-detail</ion-title>
+  <!-- 
+    This is how to add a back button the easy way.
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons> 
+  -->
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/places/tabs/discover"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>{{place.title}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-
+  <ion-button color="primary" class="ion-margin" (click)="onBookPlace()">
+    BOOK NOW!
+  </ion-button>
 </ion-content>

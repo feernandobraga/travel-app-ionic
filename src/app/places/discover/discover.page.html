@@ -24,6 +24,20 @@
           <ion-card-content>
             <p>{{ loadedPlaces[0].description }}</p>
           </ion-card-content>
+          
+          <div>
+            <ion-button 
+              fill="clear" 
+              color="primary"
+              routerDirection="forward" 
+              [routerLink]="[
+                '/', 
+                'places', 
+                'tabs', 
+                'discover', loadedPlaces[0].id]">
+              MORE
+            </ion-button>
+          </div>
         
         </ion-card>
       
@@ -38,7 +52,11 @@
 
         <ion-list>
 
-          <ion-item *ngFor="let place of loadedPlaces.slice(1)">
+          <ion-item 
+            *ngFor="let place of loadedPlaces.slice(1)" 
+            [routerLink]="['/', 'places', 'tabs', 'discover', place.id]"
+            detail  
+          > <!-- detail is used to show that little arrow on the button -->
             <ion-thumbnail slot="start">
               <ion-img [src]="place.imageUrl"></ion-img>
             </ion-thumbnail>
