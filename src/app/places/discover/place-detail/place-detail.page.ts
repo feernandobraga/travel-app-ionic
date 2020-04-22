@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { NavController, ModalController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { NavController, ModalController, ActionSheetController } from '@ionic/angular';
 import { PlacesService } from '../../places.service';
 import { Place } from '../../place.model';
 import { CreateBookingComponent } from '../../../bookings/create-booking/create-booking.component';
@@ -18,7 +18,8 @@ export class PlaceDetailPage implements OnInit {
       private router: ActivatedRoute,
       private navCtrl: NavController,
       private placesService: PlacesService,
-      private modalCtrl: ModalController
+      private modalCtrl: ModalController,
+      private actionSheetCtrl: ActionSheetController
     ) { }
 
   ngOnInit() {
@@ -41,20 +42,49 @@ export class PlaceDetailPage implements OnInit {
   onBookPlace(){
     // this.router.navigateByUrl('/places/tabs/discover');
     // this.navCtrl.navigateBack('/places/tabs/discover')
-    this.modalCtrl
-    .create({
-      component: CreateBookingComponent, 
-      // componentProps allow you to pass any key value pair you wanted. In this case I passed the place
-      componentProps: { selectedPlace: this.place }
+    this.actionSheetCtrl.create({
+      header: 'Choose an Action',
+      buttons: [
+        {
+          text: 'Select Date',
+          handler: () => {
+            this.openBookingModal('select');
+          }
+        },
+        {
+          text: 'Random Date',
+          handler: () => {
+            this.openBookingModal('random');
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    }).then(actionSheetEl => {
+      actionSheetEl.present();
     })
-    .then(modalEl => { 
-      modalEl.present();
-      return modalEl.onDidDismiss();
-    }).then(resultData => {
-      console.log(resultData.data, resultData.role);
-    })
-
+    
   }
 
+  
+  openBookingModal(mode: 'select' | 'random') { //this syntax requires that mode can only be either select or random 
+    console.log(mode);
+
+    this.modalCtrl
+      .create({
+        component: CreateBookingComponent,
+        // componentProps allow you to pass any key value pair you wanted. In this case I passed the place
+        componentProps: { selectedPlace: this.place }
+      })
+      .then(modalEl => {
+        modalEl.present();
+        return modalEl.onDidDismiss();
+      }).then(resultData => {
+        console.log(resultData.data, resultData.role);
+      })
+
+  }
 
 }
