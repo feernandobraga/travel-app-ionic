@@ -4,11 +4,59 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding">
+  <!-- 
+    by using #f="ngForm" we can pass the form as a reference for our typescript file auth.page.ts
+   -->
+  <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+    <ion-grid>
 
-  <!-- <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner> -->
-  <!-- <ion-button color="tertiary" (click)="onLogin()" *ngIf="!isLoading"> -->
-  <ion-button color="tertiary" (click)="onLogin()">
-    Login
-  </ion-button>
+      <ion-row>
+
+        <ion-col size-sm="6" offset-sm="3">
+
+          <ion-list>
+          
+            <ion-item>
+              <ion-label position="floating">E-mail</ion-label>
+              <!-- #emailCtrl is passing the reference of that ion-input field so we can capture its value -->
+              <ion-input type="email" ngModel name="email" required email #emailCtrl="ngModel"></ion-input>
+            </ion-item>
+            
+            <ion-item *ngIf="!emailCtrl.valid && emailCtrl.touched" lines="none">
+              <ion-label>Should be a valid email address.</ion-label>
+            </ion-item>
+          
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input type="password" ngModel name="password" required minlength="3" #passwordCtrl="ngModel"></ion-input>
+            </ion-item>
+
+            <ion-item *ngIf="!passwordCtrl.valid && passwordCtrl.touched" lines="none">
+              <ion-label>Should at least be 6 characters long</ion-label>
+            </ion-item>
+          
+          </ion-list>
+
+        </ion-col>
+        
+      </ion-row>
+
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          
+              <ion-button type="button" color="tertiary" fill="clear" expand="block">Switch to Sign Up</ion-button>
+              <!-- <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner> -->
+              <!-- <ion-button color="tertiary" (click)="onLogin()" *ngIf="!isLoading"> -->
+              <ion-button type="submit" color="primary" (click)="onLogin()" expand="block" [disabled]="f.invalid">
+                Login
+              </ion-button>
+
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
+
+  </form>
+
 </ion-content>
