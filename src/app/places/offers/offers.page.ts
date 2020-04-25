@@ -26,7 +26,7 @@ export class OffersPage implements OnInit {
   onEdit(offerId: string, slidingItem: IonItemSliding){
     // I had to pass the sliding item from the view as an argument as well so I could close it
     slidingItem.close();
-    this.router.navigate(["/", "places", "tabs", "offers", offerId]);
+    this.router.navigate(["/", "places", "tabs", "offers", "edit", offerId]);
     console.log('Editing item ', offerId)
   }
 
