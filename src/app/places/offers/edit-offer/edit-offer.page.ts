@@ -37,14 +37,13 @@ export class EditOfferPage implements OnInit {
         To synchronize the data between this form to the form on the new-offer.page we have to add a directive [formGroup]
         that points to the form property declared on line 10, here.
       */
-
       this.form = new FormGroup({
-        title: new FormControl(null, {
+        title: new FormControl(this.place.title , {
           updateOn: 'blur',
           validators: [Validators.required]
         }),
 
-        description: new FormControl(null, {
+        description: new FormControl(this.place.description , {
           updateOn: 'blur',
           validators: [Validators.required, Validators.maxLength(180)]
         })
@@ -54,6 +53,15 @@ export class EditOfferPage implements OnInit {
     });
   }
 
+  onUpdateOffer(){
+    if (!this.form.valid) {
+      return
+    }
+    console.log('Editing offered place...')
+    console.log(this.form)
 
+    
+
+  }
 
 }

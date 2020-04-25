@@ -6,6 +6,13 @@
     </ion-buttons>
 
     <ion-title>Edit Offer</ion-title>
+
+    <ion-buttons slot="primary">
+      <ion-button (click)="onUpdateOffer()"  [disabled]="form.invalid">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
@@ -45,7 +52,7 @@
       <ion-row *ngIf="!form.get('description').valid && form.get('description').touched">
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
-            <span>Description must not be between 1 and 180 characters.</span>
+            <span>Description must be between 1 and 180 characters.</span>
           </ion-item>
         </ion-col>
       </ion-row>

@@ -75,8 +75,8 @@ export class PlaceDetailPage implements OnInit {
     this.modalCtrl
       .create({
         component: CreateBookingComponent,
-        // componentProps allow you to pass any key value pair you wanted. In this case I passed the place
-        componentProps: { selectedPlace: this.place }
+        // componentProps allow you to pass any key value pair you wanted. In this case I passed the place and the mode (select or random)
+        componentProps: { selectedPlace: this.place, selectedMode: mode }
       })
       .then(modalEl => {
         modalEl.present();
