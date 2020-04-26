@@ -23,6 +23,13 @@ export class OffersPage implements OnInit {
     this.offers = this.placesService.places
   }
 
+  /* 
+  This can be used when you add/edit/remove your array but the changes do not reflect.
+  You can use this instead of RxJS if you want
+  ionViewWillEnter() {
+    this.offers = this.placesService.places
+  } */
+
   onEdit(offerId: string, slidingItem: IonItemSliding){
     // I had to pass the sliding item from the view as an argument as well so I could close it
     slidingItem.close();

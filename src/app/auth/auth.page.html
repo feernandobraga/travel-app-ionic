@@ -7,6 +7,7 @@
 <ion-content class="ion-padding">
   <!-- 
     by using #f="ngForm" we can pass the form as a reference for our typescript file auth.page.ts
+    or to this template
    -->
   <form #f="ngForm" (ngSubmit)="onSubmit(f)">
     <ion-grid>
@@ -19,7 +20,9 @@
           
             <ion-item>
               <ion-label position="floating">E-mail</ion-label>
-              <!-- #emailCtrl is passing the reference of that ion-input field so we can capture its value -->
+              <!-- #emailCtrl is passing the reference of that input field so we can capture its value for validation for example
+                    ngModel is added so it becomes a form component
+              -->
               <ion-input type="email" ngModel name="email" required email #emailCtrl="ngModel"></ion-input>
             </ion-item>
             
