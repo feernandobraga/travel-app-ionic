@@ -1,19 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PlacesService } from '../../places.service';
 import { NavController } from '@ionic/angular';
 import { Place } from '../../place.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-offer',
   templateUrl: './edit-offer.page.html',
   styleUrls: ['./edit-offer.page.scss'],
 })
-export class EditOfferPage implements OnInit {
+export class EditOfferPage implements OnInit, OnDestroy {
 
   place: Place;
   form: FormGroup;
+  private placeSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -28,29 +30,49 @@ export class EditOfferPage implements OnInit {
         return;
       }
 
-      this.place = this.placesService.getPlace(paramMap.get('placeId'));
-
-      /*
-        !*** remember to import the ReactiveForm module inside the component module file ***!
-        This is how I created a Reactive From programmatically. I gave the names of the inputs like i.e. title,
-        description, price... This names will be used in the formControlName property in the page file.
-        To synchronize the data between this form to the form on the new-offer.page we have to add a directive [formGroup]
-        that points to the form property declared on line 10, here.
+      /*  BEFORE SUBSCRIPTION 
+        this.place = this.placesService.getPlace(paramMap.get('placeId')); 
       */
-      this.form = new FormGroup({
-        title: new FormControl(this.place.title , {
-          updateOn: 'blur',
-          validators: [Validators.required]
-        }),
 
-        description: new FormControl(this.place.description , {
-          updateOn: 'blur',
-          validators: [Validators.required, Validators.maxLength(180)]
-        })
+      /* WITH SUBSCRIPTION
+        Here I'm subscribing to the method get Place() that returns an observable and then adding it
+        to the place variable which is of type Place;
+        I'm also storing the value of the subscription to a variable called placesSub so I can destroy the subscription
+        when I don't need it anymore.
+      */ 
 
-      })
+      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(
+        place => {
+          this.place = place
+          /*
+            !*** remember to import the ReactiveForm module inside the component module file ***!
+            This is how I created a Reactive From programmatically. I gave the names of the inputs like i.e. title,
+            description, price... This names will be used in the formControlName property in the page file.
+            To synchronize the data between this form to the form on the new-offer.page we have to add a directive [formGroup]
+            that points to the form property declared on line 10, here.
+          */
+          this.form = new FormGroup({
+            title: new FormControl(this.place.title, {
+              updateOn: 'blur',
+              validators: [Validators.required]
+            }),
 
-    });
+            description: new FormControl(this.place.description, {
+              updateOn: 'blur',
+              validators: [Validators.required, Validators.maxLength(180)]
+            })
+
+          }) // end FormGroup
+        } // end arrow function
+      ) // end subscribe
+
+    }); 
+  } // end ngOnInit()
+
+  ngOnDestroy(){
+    if (this.placeSub){
+      this.placeSub.unsubscribe();
+    }
   }
 
   onUpdateOffer(){
