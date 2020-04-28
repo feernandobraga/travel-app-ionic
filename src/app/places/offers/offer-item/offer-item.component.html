@@ -6,11 +6,11 @@
     <h1 id="offer-title">{{ offer.title }}</h1>
     <div class="offer-details">
       <ion-icon name="calendar-outline" class="ion-margin-end" color=""></ion-icon>
-      <ion-text color="" class="">From: {{ getDummyDate() | date}}</ion-text>
+      <ion-text color="" class="">From: {{ offer.availableFrom | date}}</ion-text>
     </div>
     <div class="offer-details">
       <ion-icon name="calendar-outline" class="ion-margin-end" color=""></ion-icon>
-      <ion-text color="">Until: {{ getDummyDate() | date}}</ion-text>
+      <ion-text color="">Until: {{ offer.availableTo | date}}</ion-text>
     </div>
   </ion-label>
 </ion-item>
