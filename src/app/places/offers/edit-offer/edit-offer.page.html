@@ -1,23 +1,22 @@
 <ion-header>
   <ion-toolbar>
-
     <ion-buttons slot="start">
-      <ion-back-button [defaultHref]="'/places/tabs/offers/' + place.id"></ion-back-button>
+      <ion-back-button
+        [defaultHref]="'/places/tabs/offers/' + place.id"
+      ></ion-back-button>
     </ion-buttons>
 
     <ion-title>Edit Offer</ion-title>
 
     <ion-buttons slot="primary">
-      <ion-button (click)="onUpdateOffer()"  [disabled]="form.invalid">
+      <ion-button (click)="onUpdateOffer()" [disabled]="form.invalid">
         <ion-icon slot="icon-only" name="checkmark"></ion-icon>
       </ion-button>
     </ion-buttons>
-
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-
   <!-- 
       To link the Reactive form to what we created on the .ts file, we use the [formGroup] directive and we pass the name of the
       variable that contains the form in the .ts file
@@ -25,40 +24,39 @@
      -->
   <form [formGroup]="form">
     <ion-grid>
-  
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
-  
           <ion-item>
             <ion-label position="floating">Title</ion-label>
-            <ion-input formControlName="title" type="text" autocomplete autocorrect></ion-input>
+            <ion-input
+              formControlName="title"
+              type="text"
+              autocomplete
+              autocorrect
+            ></ion-input>
           </ion-item>
-  
         </ion-col>
       </ion-row>
-  
+
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
-  
           <ion-item>
             <ion-label position="floating">Short Description</ion-label>
             <ion-textarea rows="3" formControlName="description"></ion-textarea>
           </ion-item>
-  
         </ion-col>
       </ion-row>
-  
+
       <!-- Validation error message for Description -->
-      <ion-row *ngIf="!form.get('description').valid && form.get('description').touched">
+      <ion-row
+        *ngIf="!form.get('description').valid && form.get('description').touched"
+      >
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
             <span>Description must be between 1 and 180 characters.</span>
           </ion-item>
         </ion-col>
       </ion-row>
-  
     </ion-grid>
   </form>
-
-
 </ion-content>
