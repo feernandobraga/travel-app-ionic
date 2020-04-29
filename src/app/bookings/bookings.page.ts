@@ -31,6 +31,11 @@ export class BookingsPage implements OnInit, OnDestroy {
   }
 
   onCancelBooking(bookingId: string, slidingEl: IonItemSliding) {
+    /* 
+      This method receives a bookingId and a reference to the slidingItem from the template page.
+      The sliding reference is so I can close it programmatically.
+      Then method creates a loadingController to display a spinner when a booking is cancelled and after that dismiss it.
+     */
     slidingEl.close();
     this.loadingCtrl
       .create({
