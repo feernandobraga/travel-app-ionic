@@ -2,14 +2,14 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button
-        [defaultHref]="'/places/tabs/offers/' + place.id"
+        [defaultHref]="'/places/tabs/offers/' + placeId"
       ></ion-back-button>
     </ion-buttons>
 
     <ion-title>Edit Offer</ion-title>
 
     <ion-buttons slot="primary">
-      <ion-button (click)="onUpdateOffer()" [disabled]="form.invalid">
+      <ion-button (click)="onUpdateOffer()" [disabled]="form?.invalid">
         <ion-icon slot="icon-only" name="checkmark"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -17,12 +17,17 @@
 </ion-header>
 
 <ion-content>
+
+  <div *ngIf="isLoading" class="ion-text-center">
+    <ion-spinner color="primary" name="lines"></ion-spinner>
+  </div>
+
   <!-- 
       To link the Reactive form to what we created on the .ts file, we use the [formGroup] directive and we pass the name of the
       variable that contains the form in the .ts file
       To bind the inputs we use the property formControlName
      -->
-  <form [formGroup]="form">
+  <form [formGroup]="form" *ngIf="!isLoading">
     <ion-grid>
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">

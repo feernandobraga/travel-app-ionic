@@ -5,6 +5,7 @@ import {
   ModalController,
   ActionSheetController,
   LoadingController,
+  AlertController,
 } from "@ionic/angular";
 import { PlacesService } from "../../places.service";
 import { Place } from "../../place.model";
@@ -22,9 +23,10 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   place: Place;
   private placeSub: Subscription;
   isBookable = false;
+  isLoading = false;
 
   constructor(
-    private router: ActivatedRoute,
+    private route: ActivatedRoute,
     private myRoute: Router,
     private navCtrl: NavController,
     private placesService: PlacesService,
@@ -32,11 +34,13 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private actionSheetCtrl: ActionSheetController,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertCtrl: AlertController,
+    private router: Router
   ) {}
 
   ngOnInit() {
-    this.router.paramMap.subscribe(paramMap => {
+    this.route.paramMap.subscribe(paramMap => {
       if (!paramMap.has("placeId")) {
         this.navCtrl.navigateBack("/place/tabs/discover");
         return;
@@ -50,14 +54,36 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         to the places variable which is of type place as declared on line 15
         I'm also storing the value of the subscription to a variable called placesSub so I can destroy the subscription
         when I don't need it anymore.
-        */
+      */
+      this.isLoading = true;
       this.placeSub = this.placesService
         .getPlace(paramMap.get("placeId"))
-        .subscribe(place => {
-          this.place = place;
-          // if the placeUserId is equals to the logged user, this means he/she can't book his/her own place
-          this.isBookable = place.userId !== this.authService.userId;
-        });
+        .subscribe(
+          place => {
+            this.place = place;
+            // if the placeUserId is equals to the logged user, this means he/she can't book his/her own place
+            this.isBookable = place.userId !== this.authService.userId;
+            this.isLoading = false;
+          },
+          error => {
+            this.alertCtrl
+              .create({
+                header: "Oops!",
+                message: "You have reached the end of the internet",
+                buttons: [
+                  {
+                    text: "Get me back to safety!",
+                    handler: () => {
+                      this.router.navigate(["/places/tabs/discover"]);
+                    },
+                  },
+                ],
+              })
+              .then(alertEl => {
+                alertEl.present();
+              });
+          }
+        );
     });
   }
 

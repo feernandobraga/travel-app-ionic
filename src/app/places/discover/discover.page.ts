@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { PlacesService } from '../places.service';
-import { Place } from '../place.model';
-import { SegmentChangeEventDetail } from '@ionic/core'
-import { Subscription } from 'rxjs';
-import { AuthService } from '../../auth/auth.service';
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { PlacesService } from "../places.service";
+import { Place } from "../place.model";
+import { SegmentChangeEventDetail } from "@ionic/core";
+import { Subscription } from "rxjs";
+import { AuthService } from "../../auth/auth.service";
 
 @Component({
   selector: "app-discover",
@@ -14,12 +14,13 @@ export class DiscoverPage implements OnInit, OnDestroy {
   loadedPlaces: Place[];
   listedLoadedPlaces: Place[];
   relevantPlaces: Place[];
-  private placesSub: Subscription
+  private placesSub: Subscription;
+  isLoading = false;
 
   constructor(
     private placesService: PlacesService,
     private authService: AuthService
-    ) {}
+  ) {}
 
   ngOnInit() {
     /*  WITHOUT SUBSCRIPTION 
@@ -33,18 +34,22 @@ export class DiscoverPage implements OnInit, OnDestroy {
       I'm also storing the value of the subscription to a variable called placesSub so I can destroy the subscription
       when I don't need it anymore.
     */
-    this.placesSub = this.placesService.places.subscribe(
-      places => {
-        this.loadedPlaces = places
-        this.relevantPlaces = this.loadedPlaces
-        this.listedLoadedPlaces = this.relevantPlaces.slice(1); 
-      }
-    )
-
+    this.placesSub = this.placesService.places.subscribe(places => {
+      this.loadedPlaces = places;
+      this.relevantPlaces = this.loadedPlaces;
+      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
+    });
   }
 
-  ngOnDestroy(){
-    if (this.placesSub){
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.placesService.fetchPlaces().subscribe(() => {
+      this.isLoading = false;
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.placesSub) {
       this.placesSub.unsubscribe();
     }
   }
@@ -53,11 +58,10 @@ export class DiscoverPage implements OnInit, OnDestroy {
     this is the method that handles the change on the segment menu in the discover.pages
     The method receives an event as parameter
   */
-  onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>){
+  onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
+    console.log(event.detail);
 
-    console.log(event.detail)
-
-    if (event.detail.value === "all"){
+    if (event.detail.value === "all") {
       this.relevantPlaces = this.loadedPlaces;
       this.listedLoadedPlaces = this.relevantPlaces.slice(1);
     } else {
@@ -66,8 +70,5 @@ export class DiscoverPage implements OnInit, OnDestroy {
       );
       this.listedLoadedPlaces = this.relevantPlaces.slice(1);
     }
-
   }
-
-
 }

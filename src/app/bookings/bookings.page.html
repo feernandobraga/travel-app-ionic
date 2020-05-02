@@ -13,8 +13,13 @@
 <ion-content>
   <ion-grid>
     <ion-row>
+
+      <ion-col *ngIf="isLoading" class="ion-text-center">
+        <ion-spinner name="circles" color="primary"></ion-spinner>
+      </ion-col>
+
       <ion-col
-        *ngIf="!loadedBookings || loadedBookings.length <= 0"
+        *ngIf="!isLoading && (!loadedBookings || loadedBookings.length <= 0)"
         class="ion-text-center"
       >
         <p>No bookings found!</p>
@@ -23,7 +28,7 @@
       <ion-col
         size-md="6"
         offset-md="3"
-        *ngIf="loadedBookings && loadedBookings.length > 0"
+        *ngIf="!isLoading && (loadedBookings && loadedBookings.length > 0)"
       >
         <ion-list>
           <!-- I had to pass a reference from the item #slidingBooking so I can close it programmatically -->

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Place } from "./place.model";
 import { AuthService } from "../auth/auth.service";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { take, map, tap, delay, switchMap } from "rxjs/operators";
 import { HttpClient, HttpParams } from "@angular/common/http";
 
@@ -38,14 +38,38 @@ export class PlacesService {
     return this._places.asObservable();
   }
 
+  /* BEFORE HttpRequest
+    getPlace(id: string) {
+      //This method now returns an observable that we can use to subscribe in different parts of the application
+      return this.places.pipe(
+        take(1),
+        map(places => {
+          return { ...places.find(p => p.id === id) };
+        })
+      );
+    } 
+  */
+
   getPlace(id: string) {
-    //This method now returns an observable that we can use to subscribe in different parts of the application
-    return this.places.pipe(
-      take(1),
-      map(places => {
-        return { ...places.find(p => p.id === id) };
-      })
-    );
+    return this.http
+      .get<PlaceData>(
+        `https://ionic-course-travelapp.firebaseio.com/offered-places/${id}.json`
+      )
+      .pipe(
+        delay(500),
+        map(placeData => {
+          return new Place(
+            id,
+            placeData.title,
+            placeData.description,
+            placeData.imageUrl,
+            placeData.price,
+            new Date(placeData.availableFrom),
+            new Date(placeData.availableTo),
+            placeData.userId
+          );
+        })
+      );
   }
 
   addPlace(
@@ -165,6 +189,13 @@ export class PlacesService {
     let updatedPlaces: Place[];
     return this.places.pipe(
       take(1),
+      switchMap(places => {
+        if (!places || places.length <= 0) {
+          return this.fetchPlaces();
+        } else {
+          return of(places); // the 'of' function takes any value and wraps into a new observable
+        }
+      }),
       switchMap(places => {
         const updatedPlaceIndex = places.findIndex(pl => pl.id === placeId);
         updatedPlaces = [...places];

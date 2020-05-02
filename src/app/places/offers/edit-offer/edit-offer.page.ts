@@ -1,34 +1,40 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PlacesService } from '../../places.service';
-import { NavController, LoadingController } from '@ionic/angular';
-import { Place } from '../../place.model';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { PlacesService } from "../../places.service";
+import {
+  NavController,
+  LoadingController,
+  AlertController,
+} from "@ionic/angular";
+import { Place } from "../../place.model";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { Subscription } from "rxjs";
 
 @Component({
-  selector: 'app-edit-offer',
-  templateUrl: './edit-offer.page.html',
-  styleUrls: ['./edit-offer.page.scss'],
+  selector: "app-edit-offer",
+  templateUrl: "./edit-offer.page.html",
+  styleUrls: ["./edit-offer.page.scss"],
 })
 export class EditOfferPage implements OnInit, OnDestroy {
-
   place: Place;
   form: FormGroup;
   private placeSub: Subscription;
+  isLoading = false;
+  placeId: string;
 
   constructor(
     private route: ActivatedRoute,
     private placesService: PlacesService,
     private navCtrl: NavController,
     private router: Router,
-    private loadingCtrl: LoadingController
-  ) { }
+    private loadingCtrl: LoadingController,
+    private alertCtrl: AlertController
+  ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap => {
-      if (!paramMap.has('placeId')) {
-        this.navCtrl.navigateBack('places/tabs/offers');
+      if (!paramMap.has("placeId")) {
+        this.navCtrl.navigateBack("places/tabs/offers");
         return;
       }
 
@@ -41,66 +47,85 @@ export class EditOfferPage implements OnInit, OnDestroy {
         to the place variable which is of type Place;
         I'm also storing the value of the subscription to a variable called placesSub so I can destroy the subscription
         when I don't need it anymore.
-      */ 
-
-      this.placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(
-        place => {
-          this.place = place
-          /*
+      */
+      this.placeId = paramMap.get("placeId");
+      this.isLoading = true;
+      this.placeSub = this.placesService
+        .getPlace(paramMap.get("placeId"))
+        .subscribe(
+          place => {
+            this.place = place;
+            /*
             !*** remember to import the ReactiveForm module inside the component module file ***!
             This is how I created a Reactive From programmatically. I gave the names of the inputs like i.e. title,
             description, price... This names will be used in the formControlName property in the page file.
             To synchronize the data between this form to the form on the new-offer.page we have to add a directive [formGroup]
             that points to the form property declared on line 10, here.
           */
-          this.form = new FormGroup({
-            title: new FormControl(this.place.title, {
-              updateOn: 'blur',
-              validators: [Validators.required]
-            }),
+            this.form = new FormGroup({
+              title: new FormControl(this.place.title, {
+                updateOn: "blur",
+                validators: [Validators.required],
+              }),
 
-            description: new FormControl(this.place.description, {
-              updateOn: 'blur',
-              validators: [Validators.required, Validators.maxLength(180)]
-            })
-
-          }) // end FormGroup
-        } // end arrow function
-      ) // end subscribe
-
-    }); 
+              description: new FormControl(this.place.description, {
+                updateOn: "blur",
+                validators: [Validators.required, Validators.maxLength(180)],
+              }),
+            }); // end FormGroup
+            this.isLoading = false;
+          }, // end arrow function
+          error => {
+            this.alertCtrl
+              .create({
+                header: "Oops... Something went wrong",
+                message: "The place could not be found",
+                buttons: [
+                  {
+                    text: "Okay",
+                    handler: () => {
+                      this.router.navigate(["/places/tabs/offers"]);
+                    },
+                  },
+                ],
+              })
+              .then(alertEl => {
+                alertEl.present();
+              });
+          }
+        ); // end subscribe
+    });
   } // end ngOnInit()
 
-  ngOnDestroy(){
-    if (this.placeSub){
+  ngOnDestroy() {
+    if (this.placeSub) {
       this.placeSub.unsubscribe();
     }
   }
 
-  onUpdateOffer(){
+  onUpdateOffer() {
     if (!this.form.valid) {
-      return
+      return;
     }
-    console.log('Editing offered place...')
+    console.log("Editing offered place...");
 
-    this.loadingCtrl.create({
-      message: 'Updating place...'
-    }).then(loadingel => {
-      loadingel.present()
-      this.placesService.updatePlace(
-        this.place.id,
-        this.form.value.title,
-        this.form.value.description
-      ).subscribe(() => {
-        loadingel.dismiss();
-        this.form.reset();
-        this.router.navigate(['/places/tabs/offers']);
+    this.loadingCtrl
+      .create({
+        message: "Updating place...",
+      })
+      .then(loadingel => {
+        loadingel.present();
+        this.placesService
+          .updatePlace(
+            this.place.id,
+            this.form.value.title,
+            this.form.value.description
+          )
+          .subscribe(() => {
+            loadingel.dismiss();
+            this.form.reset();
+            this.router.navigate(["/places/tabs/offers"]);
+          });
       });
-    })
-    
-
-    
-
   }
-
 }
