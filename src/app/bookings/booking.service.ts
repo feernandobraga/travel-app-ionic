@@ -102,14 +102,35 @@ export class BookingService {
       );
   }
 
+  /* BEFORE HttpRequests 
+    cancelBooking(bookingId: string) {
+      return this.bookings.pipe(
+        take(1),
+        delay(1000),
+        tap(bookings => {
+          this._bookings.next(bookings.filter(b => b.id !== bookingId));
+        })
+      );
+    }
+  */
+
+  // AFTER HttpRequests
   cancelBooking(bookingId: string) {
-    return this.bookings.pipe(
-      take(1),
-      delay(1000),
-      tap(bookings => {
-        this._bookings.next(bookings.filter(b => b.id !== bookingId));
-      })
-    );
+    return this.http
+      .delete(
+        // this deletes the data from the Database
+        `https://ionic-course-travelapp.firebaseio.com/bookings/${bookingId}.json`
+      )
+      .pipe(
+        // this deletes the data locally
+        switchMap(() => {
+          return this.bookings;
+        }),
+        take(1),
+        tap(bookings => {
+          this._bookings.next(bookings.filter(b => b.id !== bookingId));
+        })
+      );
   }
 
   fetchBookings() {

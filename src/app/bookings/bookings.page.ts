@@ -26,6 +26,10 @@ export class BookingsPage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
+    /* 
+        It seems like this method is fetching the info from the API and creating the array locally, so ngOnInit
+        has some data  
+    */
     this.isLoading = true;
     this.bookingsService.fetchBookings().subscribe(() => {
       this.isLoading = false;
