@@ -4,7 +4,8 @@ import { MapModalComponent } from "../../map-modal/map-modal.component";
 import { HttpClient } from "@angular/common/http";
 
 import { environment } from "../../../../environments/environment";
-import { map } from "rxjs/operators";
+import { map, switchMapTo } from "rxjs/operators";
+import { PlaceLocation } from "../../../places/location.model";
 
 @Component({
   selector: "app-location-picker",
@@ -26,10 +27,16 @@ export class LocationPickerComponent implements OnInit {
           if (!modalData.data) {
             return;
           }
-          this.getAddress(modalData.data.lat, modalData.data.lng).subscribe(
-            address => {
-              console.log(address);
-            }
+          const pickedLocation: PlaceLocation = {
+            lat: modalData.data.lat,
+            lng: modalData.data.lng,
+            address: null,
+            staticMapImageUrl: null,
+          };
+          this.getAddress(modalData.data.lat, modalData.data.lng).pipe(
+            switchMap(address => {
+              pickedLocation.address = address;
+            })
           );
         });
         modalEl.present();
@@ -50,5 +57,11 @@ export class LocationPickerComponent implements OnInit {
           return geoData.results[0].formatted_address;
         })
       );
+  }
+
+  private getMapImage(lat: number, lng: number, zoom: number) {
+    return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=500x300&maptype=roadmap
+&markers=color:red%7Clabel:Place%7C${lat},${lng}
+&key=${environment.googleMapsAPIKey}`;
   }
 }
