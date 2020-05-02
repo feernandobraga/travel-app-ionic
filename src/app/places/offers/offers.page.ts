@@ -1,25 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { PlacesService } from '../places.service';
-import { Place } from '../place.model';
-import { IonItemSliding } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { PlacesService } from "../places.service";
+import { Place } from "../place.model";
+import { IonItemSliding } from "@ionic/angular";
+import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 
 @Component({
-  selector: 'app-offers',
-  templateUrl: './offers.page.html',
-  styleUrls: ['./offers.page.scss'],
+  selector: "app-offers",
+  templateUrl: "./offers.page.html",
+  styleUrls: ["./offers.page.scss"],
 })
-export class OffersPage implements OnInit, OnDestroy{
-
+export class OffersPage implements OnInit, OnDestroy {
   offers: Place[];
   private placesSub: Subscription;
+  isLoading = false;
 
-  constructor(
-    private placesService: PlacesService,
-    private router: Router
-    ) { }
+  constructor(private placesService: PlacesService, private router: Router) {}
 
   ngOnInit() {
     // WITHOUT SUBSCRIPTION
@@ -31,13 +27,20 @@ export class OffersPage implements OnInit, OnDestroy{
       I'm also storing the value of the subscription to a variable called placesSub so I can destroy the subscription 
       when I don't need it anymore.
     */
-    this.placesSub = this.placesService.places.subscribe(
-      places => { this.offers = places}
-    )
+    this.placesSub = this.placesService.places.subscribe(places => {
+      this.offers = places;
+    });
   }
 
-  ngOnDestroy(){
-    if (this.placesSub){
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.placesService.fetchPlaces().subscribe(() => {
+      this.isLoading = false;
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.placesSub) {
       this.placesSub.unsubscribe();
     }
   }
@@ -49,11 +52,10 @@ export class OffersPage implements OnInit, OnDestroy{
     this.offers = this.placesService.places
   } */
 
-  onEdit(offerId: string, slidingItem: IonItemSliding){
+  onEdit(offerId: string, slidingItem: IonItemSliding) {
     // I had to pass the sliding item from the view as an argument as well so I could close it
     slidingItem.close();
     this.router.navigate(["/", "places", "tabs", "offers", "edit", offerId]);
-    console.log('Editing item ', offerId)
+    console.log("Editing item ", offerId);
   }
-
 }
