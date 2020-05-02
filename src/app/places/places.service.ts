@@ -105,6 +105,7 @@ export class PlacesService {
     ); */
   } // end addPlace
 
+  /* UpdatePlace BEFORE HttpRequests
   updatePlace(placeId: string, title: string, description: string) {
     return this.places.pipe(
       take(1),
@@ -126,7 +127,7 @@ export class PlacesService {
         this._places.next(updatedPlaces);
       })
     );
-  } // end updatePlace
+  } // end updatePlace */
 
   fetchPlaces() {
     return this.http
@@ -159,7 +160,36 @@ export class PlacesService {
         })
       );
   }
-}
+
+  updatePlace(placeId: string, title: string, description: string) {
+    let updatedPlaces: Place[];
+    return this.places.pipe(
+      take(1),
+      switchMap(places => {
+        const updatedPlaceIndex = places.findIndex(pl => pl.id === placeId);
+        updatedPlaces = [...places];
+        const oldPlace = updatedPlaces[updatedPlaceIndex];
+        updatedPlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableFrom,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+        return this.http.put(
+          `https://ionic-course-travelapp.firebaseio.com/offered-places/${placeId}.json`,
+          { ...updatedPlaces[updatedPlaceIndex], id: null }
+        );
+      }),
+      tap(() => {
+        this._places.next(updatedPlaces);
+      })
+    );
+  } // end updatePlace
+} // end PlacesService
 
 /*  This is the old Place array, before implementing Http requests
 [
