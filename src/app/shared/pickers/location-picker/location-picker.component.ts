@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, EventEmitter, Output } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { MapModalComponent } from "../../map-modal/map-modal.component";
 import { HttpClient } from "@angular/common/http";
@@ -14,6 +14,10 @@ import { of } from "rxjs";
   styleUrls: ["./location-picker.component.scss"],
 })
 export class LocationPickerComponent implements OnInit {
+  selectedLocationImage: string;
+  isLoading = false;
+  @Output() locationPick = new EventEmitter<PlaceLocation>();
+
   constructor(private modalCtrl: ModalController, private http: HttpClient) {}
 
   ngOnInit() {}
@@ -34,17 +38,22 @@ export class LocationPickerComponent implements OnInit {
             address: null,
             staticMapImageUrl: null,
           };
+          this.isLoading = true;
           this.getAddress(modalData.data.lat, modalData.data.lng)
             .pipe(
               switchMap(address => {
                 pickedLocation.address = address;
                 return of(
+                  // 'of' transforms a value into an observable
                   this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14)
                 );
               })
             )
             .subscribe(staticMapImageUrl => {
               pickedLocation.staticMapImageUrl = staticMapImageUrl;
+              this.selectedLocationImage = staticMapImageUrl;
+              this.isLoading = false;
+              this.locationPick.emit(pickedLocation);
             });
         });
         modalEl.present();
@@ -62,6 +71,7 @@ export class LocationPickerComponent implements OnInit {
           if (!geoData || !geoData.results || geoData.results.length === 0) {
             return null;
           }
+          console.log(geoData.results[0].formatted_address);
           return geoData.results[0].formatted_address;
         })
       );
