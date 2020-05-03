@@ -75,20 +75,31 @@ export class PlacesService {
       );
   }
 
+  uploadImage(image: File) {
+    const upLoadData = new FormData();
+    upLoadData.append("image", image);
+
+    return this.http.post<{ imageUrl: string; imagePath: string }>(
+      "https://us-central1-ionic-course-travelapp.cloudfunctions.net/storeImage",
+      upLoadData
+    );
+  }
+
   addPlace(
     title: string,
     description: string,
     price: number,
     dateFrom: Date,
     dateTo: Date,
-    location: PlaceLocation
+    location: PlaceLocation,
+    imageUrl: string
   ) {
     let generatedId: string;
     const newPlace = new Place(
       Math.random().toString(),
       title,
       description,
-      "https://data.whicdn.com/images/310015645/original.jpg",
+      imageUrl,
       price,
       dateFrom,
       dateTo,

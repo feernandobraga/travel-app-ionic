@@ -5,6 +5,7 @@ import {
   EventEmitter,
   ViewChild,
   ElementRef,
+  Input,
 } from "@angular/core";
 import {
   Plugins,
@@ -23,6 +24,7 @@ export class ImagePickerComponent implements OnInit {
   @ViewChild("filePicker", { static: false }) filePickerRef: ElementRef<
     HTMLInputElement
   >;
+  @Input() showPreview = false;
   @Output() imagePick = new EventEmitter<string | File>();
   selectedImage: string;
   usePicker = false;
@@ -45,10 +47,10 @@ export class ImagePickerComponent implements OnInit {
       return;
     }
     Plugins.Camera.getPhoto({
-      quality: 80,
+      quality: 50,
       source: CameraSource.Prompt,
       correctOrientation: true,
-      width: 600,
+      width: 300,
       resultType: CameraResultType.DataUrl,
     })
       .then(image => {
