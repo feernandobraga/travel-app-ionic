@@ -1,21 +1,22 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
-import { Platform } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { AuthService } from './auth/auth.service';
-import { Router } from '@angular/router';
+import { Platform } from "@ionic/angular";
+// import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+// import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { AuthService } from "./auth/auth.service";
+import { Router } from "@angular/router";
+import { Plugins, Capacitor } from "@capacitor/core";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: 'app.component.html',
-  styleUrls: ['app.component.scss']
+  selector: "app-root",
+  templateUrl: "app.component.html",
+  styleUrls: ["app.component.scss"],
 })
 export class AppComponent {
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
+    // private splashScreen: SplashScreen,
+    // private statusBar: StatusBar,
     private authService: AuthService,
     private router: Router
   ) {
@@ -24,16 +25,15 @@ export class AppComponent {
 
   initializeApp() {
     this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
+      if (Capacitor.isPluginAvailable("SplashScreen")) {
+        Plugins.SplashScreen.hide();
+      }
     });
   }
 
   onLogout() {
-    console.log("logout")
+    console.log("logout");
     this.authService.logout();
-    this.router.navigateByUrl('/auth')
-
+    this.router.navigateByUrl("/auth");
   }
-
 }

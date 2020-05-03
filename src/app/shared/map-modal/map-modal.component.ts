@@ -63,6 +63,7 @@ export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
             map: map,
             title: "Picked Location",
           });
+          marker.setMap(map);
         }
       })
       .catch(err => {
