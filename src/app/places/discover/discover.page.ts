@@ -59,16 +59,17 @@ export class DiscoverPage implements OnInit, OnDestroy {
     The method receives an event as parameter
   */
   onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
+    this.authService.userId.subscribe(userId => {
+      if (event.detail.value === "all") {
+        this.relevantPlaces = this.loadedPlaces;
+        this.listedLoadedPlaces = this.relevantPlaces.slice(1);
+      } else {
+        this.relevantPlaces = this.loadedPlaces.filter(
+          place => place.userId !== userId
+        );
+        this.listedLoadedPlaces = this.relevantPlaces.slice(1);
+      }
+    });
     console.log(event.detail);
-
-    if (event.detail.value === "all") {
-      this.relevantPlaces = this.loadedPlaces;
-      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
-    } else {
-      this.relevantPlaces = this.loadedPlaces.filter(
-        place => place.userId !== this.authService.userId
-      );
-      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
-    }
   }
 }

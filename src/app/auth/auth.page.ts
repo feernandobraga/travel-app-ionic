@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { AuthService } from "./auth.service";
+import { AuthService, AuthResponseData } from "./auth.service";
 import { Router } from "@angular/router";
 import { LoadingController, AlertController } from "@ionic/angular";
 import { NgForm } from "@angular/forms";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-auth",
@@ -53,7 +54,6 @@ export class AuthPage implements OnInit {
 
   authenticate(email: string, password: string) {
     this.isLoading = true;
-    this.authService.login();
 
     /* 
       The loading controller takes an object where I can configure some stuff including the message.
@@ -68,8 +68,13 @@ export class AuthPage implements OnInit {
 
       .then(loadingEl => {
         loadingEl.present();
-        // send a request to sign up servers
-        this.authService.signup(email, password).subscribe(
+        let authObs: Observable<AuthResponseData>;
+        if (this.isLogin) {
+          authObs = this.authService.login(email, password);
+        } else {
+          authObs = this.authService.signup(email, password);
+        }
+        authObs.subscribe(
           resData => {
             console.log(resData);
             this.isLoading = false;
@@ -82,6 +87,10 @@ export class AuthPage implements OnInit {
             let message = "Could not sign you up, please try again";
             if (code === "EMAIL_EXISTS") {
               message = "This email address already exists";
+            } else if (code === "EMAIL_NOT_FOUND") {
+              message = "E-Mail address could not be found";
+            } else if (code === "INVALID_PASSWORD") {
+              message = "Login and password don't match";
             }
             this.showAlert(message);
           }
