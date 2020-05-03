@@ -4,8 +4,9 @@ import { MapModalComponent } from "../../map-modal/map-modal.component";
 import { HttpClient } from "@angular/common/http";
 
 import { environment } from "../../../../environments/environment";
-import { map, switchMapTo } from "rxjs/operators";
+import { map, switchMapTo, switchMap } from "rxjs/operators";
 import { PlaceLocation } from "../../../places/location.model";
+import { of } from "rxjs";
 
 @Component({
   selector: "app-location-picker",
@@ -33,11 +34,18 @@ export class LocationPickerComponent implements OnInit {
             address: null,
             staticMapImageUrl: null,
           };
-          this.getAddress(modalData.data.lat, modalData.data.lng).pipe(
-            switchMap(address => {
-              pickedLocation.address = address;
-            })
-          );
+          this.getAddress(modalData.data.lat, modalData.data.lng)
+            .pipe(
+              switchMap(address => {
+                pickedLocation.address = address;
+                return of(
+                  this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14)
+                );
+              })
+            )
+            .subscribe(staticMapImageUrl => {
+              pickedLocation.staticMapImageUrl = staticMapImageUrl;
+            });
         });
         modalEl.present();
       });
