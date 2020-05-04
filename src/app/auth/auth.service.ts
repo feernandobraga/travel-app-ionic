@@ -1,9 +1,10 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, from } from "rxjs";
 import { User } from "./user.model";
 import { map, tap } from "rxjs/operators";
+import { Plugins } from "@capacitor/core";
 
 export interface AuthResponseData {
   kind: string;
@@ -18,10 +19,11 @@ export interface AuthResponseData {
 @Injectable({
   providedIn: "root",
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   // private _userIsAuthenticated = false;
   // private _userId = null;
   private _user = new BehaviorSubject<User>(null);
+  private activeLogoutTimer: any;
 
   get userId() {
     return this._user.asObservable().pipe(
@@ -56,13 +58,24 @@ export class AuthService {
         {
           email: email,
           password: password,
+          returnSecureToken: true,
         }
       )
       .pipe(tap(this.setUserData.bind(this)));
   }
 
   logout() {
+    if (this.activeLogoutTimer) {
+      clearTimeout(this.activeLogoutTimer);
+    }
     this._user.next(null);
+    Plugins.Storage.remove({ key: "authData" });
+  }
+
+  ngOnDestroy() {
+    if (this.activeLogoutTimer) {
+      clearTimeout(this.activeLogoutTimer);
+    }
   }
 
   signup(email: string, password: string) {
@@ -78,17 +91,88 @@ export class AuthService {
       .pipe(tap(this.setUserData.bind(this)));
   }
 
+  private autoLogout(duration: number) {
+    if (this.activeLogoutTimer) {
+      clearTimeout(this.activeLogoutTimer);
+    }
+    this.activeLogoutTimer = setTimeout(() => {
+      this.logout;
+    }, duration);
+  }
+
   private setUserData(userData: AuthResponseData) {
     const expirationTime = new Date(
       new Date().getTime() + +userData.expiresIn * 1000
     );
-    this._user.next(
-      new User(
-        userData.localId,
-        userData.email,
-        userData.idToken,
-        expirationTime
-      )
+    const user = new User(
+      userData.localId,
+      userData.email,
+      userData.idToken,
+      expirationTime
+    );
+    this._user.next(user);
+
+    this.autoLogout(user.tokenDuration);
+    this.storeAuthData(
+      userData.localId,
+      userData.idToken,
+      expirationTime.toISOString(),
+      userData.email
+    );
+  }
+
+  private storeAuthData(
+    userId: string,
+    token: string,
+    tokenExpirationDate: string,
+    email: string
+  ) {
+    // stringify will convert the object to a string, so I can store that in the value
+    const data = JSON.stringify({
+      userId: userId,
+      token: token,
+      tokenExpirationDate: tokenExpirationDate,
+      email: email,
+    });
+    Plugins.Storage.set({
+      key: "authData",
+      value: data,
+    });
+  }
+
+  autoLogin() {
+    return from(Plugins.Storage.get({ key: "authData" })).pipe(
+      map(storedData => {
+        if (!storedData || !storedData.value) {
+          return null;
+        }
+        const parsedData = JSON.parse(storedData.value) as {
+          token: string;
+          tokenExpirationData: string;
+          userId: string;
+          email: string;
+        };
+        const expirationTime = new Date(parsedData.tokenExpirationData);
+        if (expirationTime <= new Date()) {
+          return null;
+        }
+        const user = new User(
+          parsedData.userId,
+          parsedData.email,
+          parsedData.token,
+          expirationTime
+        );
+        return user;
+      }),
+      tap(user => {
+        if (user) {
+          this._user.next(user);
+          this.autoLogout(user.tokenDuration);
+        }
+      }),
+      map(user => {
+        return !!user; //double exclamation converts it to a boolean
+      })
     );
   }
 }
