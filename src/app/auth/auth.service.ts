@@ -111,7 +111,6 @@ export class AuthService implements OnDestroy {
       expirationTime
     );
     this._user.next(user);
-
     this.autoLogout(user.tokenDuration);
     this.storeAuthData(
       userData.localId,
